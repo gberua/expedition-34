@@ -1,67 +1,109 @@
+# new input deletes clears old logs form terminal
+
 import random
-# import math
+from utils.enemy_stats import enemies
+from utils.validate_enemy import ValidateEnemy
+import time
+import os
+
+
+def clear_screen():
+    os.system("cls" if os.name == "nt" else "clear")
+
+
+clear_screen()
+
+
+time.sleep(1)
+
 dodged = False
 attack_dodged = False
 # inputs
 tarnished_lvl = int(input("tarnished level:  "))
-sword_lvl = int(input("rivers of blood level:  "))
-enemy_options = input("Enemy (soldier / knight / demigod / dragon):  ").lower()
+sword_lvl = int(input("Weapon upgrade (0-10):  "))
+enemy_options = ''
 
+enemy_options = ValidateEnemy()
 
-# enemy types
-enemies = {
-    "soldier": {"hp": 300, "difficulty": 0.8, "runes": 500},
-    "knight": {"hp": 600, "difficulty": 1.0, "runes": 3000},
-    "demigod": {"hp": 1200, "difficulty": 1.4, "runes": 20000},
-    "dragon": {"hp": 2000, "difficulty": 1.8, "runes": 50000},
-}
-if enemy_options not in enemies:
-    print("thats not an enemy. get a glasses you fell off a cliff.")
 enemy_hp = enemies[enemy_options]["hp"]
 enemy_diff = enemies[enemy_options]["difficulty"]
 enemy_runes = enemies[enemy_options]['runes']
 
 # player stats
+
 player_hp = 50
 player_dmg = 20
+player_mana = 10
 base_hp = tarnished_lvl * player_hp
 base_dmg = tarnished_lvl * player_dmg
-print(f"you have {base_hp} HP")
+base_mana = tarnished_lvl * player_mana
+print(f"You have {base_hp} HP")
+print(f"You have {base_mana} Mana")
+print(f"Enemy has {enemy_hp} HP")
 rng = random.uniform(0.85, 1.15)
-attack_dodged = 0.0
+attack_missed = 0.0
 death_chance = 0.0
-
+enemy_hit = 0.0
 
 # weapon stats
 sword_dmg = 20
 max_damage = (sword_lvl * sword_dmg)+(player_dmg*tarnished_lvl)
-print(f"you have {max_damage} DAMAGE")
+print(f"You have {max_damage} DAMAGE")
+
+
+
 
 # ===== action phase ======
 while base_hp > 0 or enemy_hp > 0:
+    time.sleep(1)
     action = input(
-        "what's your move? attack / greed  / dodge / heal:  ").lower()
+        "what's your move? attack/ magic / greed  / dodge / heal:  ").lower()
+
+    clear_screen()
 
     if action == "attack":
-        attack_dodged = 0.80
+        attack_missed = 0.2
         damage = int(max_damage / enemy_diff)
-        if random.random() < attack_dodged:
+        if random.random() < attack_missed:
             print("Enemy dodged your attack!")
             damage = 0
         else:
-            enemy_hp -= damage
+            enemy_hp = enemy_hp - damage
             print(f"You dealt {damage}")
+        time.sleep(1)
+
+    # elif action == "magic":
+    #         spells = [# (spell, damage, mana)
+    #     ("fireball", 50, 40),
+    #     ("ice blizzard", 30, 25),
+    #     ("lightning", 70, 50),
+    #     ("wind slash", 20, 10),
+    #     ]
+    #         spells = input("choose your spell: fireball / ice blizzard / lightning / wind slash ...  ").lower()
 
     elif action == "greed":
         damage = int(max_damage * 1.5)
-        enemy_hp -= damage
+        enemy_hp = enemy_hp - damage
         print(f"Greedy hit for {damage}")
+        time.sleep(1)
 
     elif action == "dodge":
         print("You dodged!")
         dodged = True
+        time.sleep(1)
+
     elif action == "heal":
-        base_hp = (base_hp + 50) - enemy_damage
+        enemy_hit = 0.2
+        print("HP BEFORE", base_hp)
+        base_hp = (base_hp + 50)
+        dodged = True
+        print("hp gained", base_hp)
+        print("HP AFTER", base_hp)
+        if random.random() < enemy_hit:
+            enemy_damage = round(random.randint(80, 100)*enemy_diff)
+            print(f"Enemy hits you for {enemy_damage} while healing!")
+            base_hp -= enemy_damage
+        time.sleep(1)
 
     print(f"Enemy HP now: {enemy_hp}")
 
@@ -69,10 +111,14 @@ while base_hp > 0 or enemy_hp > 0:
     if dodged:
         enemy_damage = 0
         print("Enemy attack missed!")
+
     else:
         enemy_damage = round(random.randint(80, 100)*enemy_diff)
+    time.sleep(1)
+
     base_hp -= enemy_damage
     print(f"Enemy hits you for {enemy_damage}")
+    time.sleep(1.2)
     print(f"Your HP: {base_hp}")
 
     if action == "greed" and random.random() < death_chance:
@@ -82,4 +128,5 @@ while base_hp > 0 or enemy_hp > 0:
 
     elif base_hp <= 0 or enemy_hp <= 0:
         print("Game over")
+
         break
