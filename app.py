@@ -49,8 +49,8 @@ enemy_hit = 0.0
 sword_dmg = 20
 max_damage = (sword_lvl * sword_dmg)+(player_dmg*tarnished_lvl)
 print(f"You have {max_damage} DAMAGE")
-
-
+magic_damage = round(enemy_hp * 0.4)
+frostbite = round(magic_damage + 20 % enemy_hp)
 
 
 # ===== action phase ======
@@ -69,17 +69,18 @@ while base_hp > 0 or enemy_hp > 0:
             damage = 0
         else:
             enemy_hp = enemy_hp - damage
-            print(f"You dealt {damage}")
+            print(f"You dealt {damage} damage!")
         time.sleep(1)
 
-    # elif action == "magic":
-    #         spells = [# (spell, damage, mana)
-    #     ("fireball", 50, 40),
-    #     ("ice blizzard", 30, 25),
-    #     ("lightning", 70, 50),
-    #     ("wind slash", 20, 10),
-    #     ]
-    #         spells = input("choose your spell: fireball / ice blizzard / lightning / wind slash ...  ").lower()
+    elif action == "magic":
+        spell = input(
+            "choose your spell: fireball / ice blizzard / lightning / wind slash ...  ").lower()
+        if spell == "fireball":
+            enemy_hp -= round(magic_damage)
+            print(f"You did {magic_damage} damage!")
+        elif spell == "ice blizzard":
+            enemy_hp -= round(frostbite)
+            print(f"You gave enemy Frostbite {frostbite} damage dealt!")
 
     elif action == "greed":
         damage = int(max_damage * 1.5)
