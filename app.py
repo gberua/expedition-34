@@ -57,7 +57,7 @@ frostbite = round(magic_damage + 20 % enemy_hp)
 while base_hp > 0 or enemy_hp > 0:
     time.sleep(1)
     action = input(
-        "what's your move? attack/ magic / greed  / dodge / heal:  ").lower()
+        "what's your move? attack / magic / greed  / dodge / heal:  ").lower()
 
     clear_screen()
 
@@ -74,13 +74,16 @@ while base_hp > 0 or enemy_hp > 0:
 
     elif action == "magic":
         spell = input(
-            "choose your spell: fireball / ice blizzard / lightning / wind slash ...  ").lower()
+            "choose your spell: fireball / ice blizzard / lightning ...  ").lower()
         if spell == "fireball":
             enemy_hp -= round(magic_damage)
             print(f"You did {magic_damage} damage!")
         elif spell == "ice blizzard":
             enemy_hp -= round(frostbite)
             print(f"You gave enemy Frostbite {frostbite} damage dealt!")
+        elif spell == "lightning":
+            enemy_hp -= magic_damage
+            print(f"You dealt {magic_damage} damage! Enemy has been stunned")
 
     elif action == "greed":
         damage = int(max_damage * 1.5)
