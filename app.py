@@ -3,6 +3,7 @@
 import random
 from utils.enemy_stats import enemies
 from utils.validate_enemy import ValidateEnemy
+# from utils.spells import spell
 import time
 import os
 
@@ -16,8 +17,16 @@ clear_screen()
 
 time.sleep(1)
 
+spells = {
+    "fireball": {"mana": 30, },
+    "ice blizzard": {"mana": 60, },
+    "lightning": {"mana": 70}
+}
+
 dodged = False
 attack_dodged = False
+enemy_stunned = False
+
 # inputs
 tarnished_lvl = int(input("tarnished level:  "))
 sword_lvl = int(input("Weapon upgrade (0-10):  "))
@@ -29,6 +38,7 @@ enemy_hp = enemies[enemy_options]["hp"]
 enemy_diff = enemies[enemy_options]["difficulty"]
 enemy_runes = enemies[enemy_options]['runes']
 
+
 # player stats
 
 player_hp = 50
@@ -37,6 +47,7 @@ player_mana = 10
 base_hp = tarnished_lvl * player_hp
 base_dmg = tarnished_lvl * player_dmg
 base_mana = tarnished_lvl * player_mana
+current_mana = base_mana
 print(f"You have {base_hp} HP")
 print(f"You have {base_mana} Mana")
 print(f"Enemy has {enemy_hp} HP")
@@ -44,6 +55,7 @@ rng = random.uniform(0.85, 1.15)
 attack_missed = 0.0
 death_chance = 0.0
 enemy_hit = 0.0
+
 
 # weapon stats
 sword_dmg = 20
@@ -75,15 +87,51 @@ while base_hp > 0 or enemy_hp > 0:
     elif action == "magic":
         spell = input(
             "choose your spell: fireball / ice blizzard / lightning ...  ").lower()
+        
+        if spell not in spells:
+            print("That spell does not exist.")
+            time.sleep(1)
+            continue
+
+        mana_cost = spells[spell]["mana"]
+
+        if current_mana < mana_cost:
+            print("Not enough mana!")
+            time.sleep(1)
+            continue
+
+        current_mana -= mana_cost
+
+
         if spell == "fireball":
+            print("""
+⠀⠀⠀⠀⠀⠀⢱⣆⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠈⣿⣷⡀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢸⣿⣿⣷⣧⠀⠀⠀
+⠀⠀⠀⠀⡀⢠⣿⡟⣿⣿⣿⡇⠀⠀
+⠀⠀⠀⠀⣳⣼⣿⡏⢸⣿⣿⣿⢀⠀
+⠀⠀⠀⣰⣿⣿⡿⠁⢸⣿⣿⡟⣼⡆
+⢰⢀⣾⣿⣿⠟⠀⠀⣾⢿⣿⣿⣿⣿
+⢸⣿⣿⣿⡏⠀⠀⠀⠃⠸⣿⣿⣿⡿
+⢳⣿⣿⣿⠀⠀⠀⠀⠀⠀⢹⣿⡿⡁
+⠀⠹⣿⣿⡄⠀⠀⠀⠀⠀⢠⣿⡞⠁
+⠀⠀⠈⠛⢿⣄⠀⠀⠀⣠⠞⠋⠀⠀
+⠀⠀⠀⠀⠀⠀⠉⠀⠀⠀⠀⠀⠀⠀
+""")
+
             enemy_hp -= round(magic_damage)
             print(f"You did {magic_damage} damage!")
+            print(f"You have {base_mana} mana left")
+
         elif spell == "ice blizzard":
             enemy_hp -= round(frostbite)
             print(f"You gave enemy Frostbite {frostbite} damage dealt!")
+
         elif spell == "lightning":
             enemy_hp -= magic_damage
+            enemy_stunned = True
             print(f"You dealt {magic_damage} damage! Enemy has been stunned")
+            print("Enemy is stunned and cannot attack!")
 
     elif action == "greed":
         damage = int(max_damage * 1.5)
@@ -112,7 +160,12 @@ while base_hp > 0 or enemy_hp > 0:
     print(f"Enemy HP now: {enemy_hp}")
 
     # enemy turn
-    if dodged:
+    if enemy_stunned:
+        enemy_damage = 0
+        print("Enemy is stunned and skips their turn!")
+        enemy_stunned = False
+    
+    elif dodged:
         enemy_damage = 0
         print("Enemy attack missed!")
 
@@ -124,6 +177,10 @@ while base_hp > 0 or enemy_hp > 0:
     print(f"Enemy hits you for {enemy_damage}")
     time.sleep(1.2)
     print(f"Your HP: {base_hp}")
+
+    dodged = False
+    
+    print(f"Your Mana: {current_mana}")
 
     if action == "greed" and random.random() < death_chance:
         print("greedy bitch")
